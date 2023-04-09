@@ -1,0 +1,54 @@
+[
+  {
+    "face": "2",
+    "power": 2
+  },
+  {
+    "face": "3",
+    "power": 3
+  },
+  {
+    "face": "4",
+    "power": 4
+  },
+  {
+    "face": "5",
+    "power": 5
+  },
+  {
+    "face": "6",
+    "power": 6
+  },
+  {
+    "face": "7",
+    "power": 7
+  },
+  {
+    "face": "8",
+    "power": 8
+  },
+  {
+    "face": "9",
+    "power": 9
+  },
+  {
+    "face": "10",
+    "power": 10
+  },
+  {
+    "face": "Jack",
+    "power": 11
+  },
+  {
+    "face": "Queen",
+    "power": 12
+  },
+  {
+    "face": "King",
+    "power": 13
+  },
+  {
+    "face": "Ace",
+    "power": 14
+  }
+]
