@@ -5,7 +5,7 @@ import {PlayedCard} from "./types";
 export default class Player {
     public name: string;
     public activeCards: Card[] = [];
-    public wonCards: Card[] = [];
+    public standbyCards: Card[] = [];
 
     constructor(name: string) {
         this.name = name
@@ -13,7 +13,7 @@ export default class Player {
 
     public playNextCard() {
         if (this.activeCards.length === 0) {
-            this.moveWonCardsToActiveCards()
+            this.moveStandbyCardsToActiveCards()
         }
 
         return this.activeCards.shift()
@@ -27,12 +27,13 @@ export default class Player {
         this.activeCards.push(card)
     }
 
-    public addToWonCards(cards: Card[]): void {
-        this.wonCards.push(...cards)
+    public addToStandbyCards(cards: Card[]): void {
+        this.standbyCards.push(...cards)
     }
 
-    private moveWonCardsToActiveCards(): void {
-        this.activeCards = shuffleCards(this.wonCards)
+    private moveStandbyCardsToActiveCards(): void {
+        this.activeCards = shuffleCards(this.standbyCards)
+        this.standbyCards = []
     }
 
 }

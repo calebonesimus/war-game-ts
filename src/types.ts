@@ -2,12 +2,12 @@ import Player from "./Player";
 import Card from "./Card";
 
 export type PlayedCard = {
-    playerName: string;
+    player: Player;
     card: Card;
 }
 
-export type RoundResult = {
-    winnerName: string;
-    winningCard: Card;
-    losingCards: Card[];
-}
+// export type RoundResult = {
+//     winnerName: string;
+//     winningCard: Card;
+//     losingCards: Card[];
+// }

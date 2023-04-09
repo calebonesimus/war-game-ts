@@ -1,42 +1,35 @@
-import Deck from "./Deck";
 import Player from "./Player";
+import {Round} from "./Round";
+import Deck from "./Deck";
 import Card from "./Card";
-import {PlayedCard, RoundResult} from "./types";
 
 export class Game {
-    public players: Player[];
-    public activePlayers: Player[];
     public deck: Deck;
+    public players: Player[];
+    public rounds: Round[] = [];
     public standByCards: Card[] = [];
 
     constructor(players: Player[]) {
         this.deck = new Deck();
         this.players = players;
-        this.activePlayers = players;
     }
 
-    public playRound(): RoundResult {
-        const cardsInPlay = this.getCardFromEachPlayer()
+    public start() {
+        this.dealCards();
 
-        const winningCard = this.comparePlayedCards(cardsInPlay);
+        const roundLimit = 1000;
+        while (this.players.length > 1 && this.rounds.length < roundLimit) {
+            const round = new Round(this, this.players);
+            round.start();
 
-        const winner = this.getWinnerByName(winningCard.playerName);
+            const totalCards = this.players.reduce((total, player) => total + player.activeCards.length + player.standbyCards.length, 0);
+            if (totalCards !== 52) {
+                throw new Error('Something went wrong, the total cards in play is not 52')
+            }
 
-        winner.addToWonCards(cardsInPlay.map(card => card.card));
-
-        if (this.standByCards.length > 0) {
-            winner.addToWonCards(this.standByCards);
-            this.standByCards = [];
+            this.rounds.push(round);
+            this.players = this.players.filter(player => player.activeCards.length > 0 || player.standbyCards.length > 0);
         }
-
-        return {
-            winnerName: winner.name,
-            winningCard: winningCard.card,
-            losingCards: cardsInPlay.filter(card => card.playerName !== winningCard.playerName).map(card => card.card)
-        }
-
-        // if cards are the same, each player adds 3 cards to the standByCards
-
     }
 
     public dealCards() {
@@ -48,32 +41,5 @@ export class Game {
                 }
             })
         }
-    }
-
-    private getCardFromEachPlayer(): PlayedCard[] {
-        return this.activePlayers.map(player => {
-            const card = player.playNextCard();
-            // task: player should be removed if they don't have any cards
-            if (card) {
-                return {
-                    playerName: player.name,
-                    card
-                }
-            }
-        });
-    }
-
-    private comparePlayedCards(playedCards: PlayedCard[]): PlayedCard {
-        return playedCards.reduce((previousCard, currentCard) => {
-            if (currentCard.card.power > previousCard.card.power) {
-                return currentCard
-            } else {
-                return previousCard
-            }
-        })
-    }
-
-    private getWinnerByName(playerName: string): Player {
-        return this.players.filter(player => player.name === playerName)[0]
     }
 }
