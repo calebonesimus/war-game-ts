@@ -1,11 +1,10 @@
 import Card from "./Card";
 import {shuffleCards} from "./utils/cards";
-import {PlayedCard} from "./types";
 
 export default class Player {
     public name: string;
     public activeCards: Card[] = [];
-    public standbyCards: Card[] = [];
+    public gainedCards: Card[] = [];
 
     constructor(name: string) {
         this.name = name
@@ -13,27 +12,43 @@ export default class Player {
 
     public playNextCard() {
         if (this.activeCards.length === 0) {
-            this.moveStandbyCardsToActiveCards()
+            this.moveGainedCardsToActiveCards()
         }
 
         return this.activeCards.shift()
     }
 
-    public getThreeNextCards(): Card[] {
-        return this.activeCards.splice(0, 3)
+    public displayNextCard() {
+        if (this.activeCards.length === 0) {
+            this.moveGainedCardsToActiveCards()
+        }
+
+        return this.activeCards[0]
+    }
+
+    public getWarSacrifice(numCards = 3): Card[] {
+        if (this.activeCards.length === 0) {
+            this.moveGainedCardsToActiveCards()
+        }
+
+        return this.activeCards.splice(0, numCards)
     }
 
     public addCardToActiveCards(card: Card): void {
         this.activeCards.push(card)
     }
 
-    public addToStandbyCards(cards: Card[]): void {
-        this.standbyCards.push(...cards)
+    public addToGainedCards(cards: Card[]): void {
+        this.gainedCards.push(...cards)
     }
 
-    private moveStandbyCardsToActiveCards(): void {
-        this.activeCards = shuffleCards(this.standbyCards)
-        this.standbyCards = []
+    public cardCount(): number {
+        return this.activeCards.length + this.gainedCards.length
+    }
+
+    private moveGainedCardsToActiveCards(): void {
+        this.activeCards = shuffleCards(this.gainedCards)
+        this.gainedCards = []
     }
 
 }

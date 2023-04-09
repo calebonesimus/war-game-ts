@@ -2,44 +2,85 @@ import Player from "./Player";
 import {Round} from "./Round";
 import Deck from "./Deck";
 import Card from "./Card";
+import {GameResult} from "./utils/types";
+import {ESTIMATED_ROUND_TIME, ESTIMATED_WAR_TIME} from "./data/constants";
 
 export class Game {
-    public deck: Deck;
-    public players: Player[];
-    public rounds: Round[] = [];
+    public initialCards: Card[];
+    public deck: Deck = new Deck();
+    public activePlayers: Player[];
+    public allPlayers: Player[];
     public standByCards: Card[] = [];
 
-    constructor(players: Player[]) {
-        this.deck = new Deck();
-        this.players = players;
+    public warCount: number = 0;
+    public roundCount: number = 0;
+
+    constructor(playerNames: string[]) {
+        this.activePlayers = playerNames.map(name => new Player(name));
+        this.allPlayers = this.activePlayers;
+        this.initialCards = [...this.deck.cards];
     }
 
-    public start() {
+    public start(): GameResult {
         this.dealCards();
 
-        const roundLimit = 1000;
-        while (this.players.length > 1 && this.rounds.length < roundLimit) {
-            const round = new Round(this, this.players);
-            round.start();
-
-            const totalCards = this.players.reduce((total, player) => total + player.activeCards.length + player.standbyCards.length, 0);
+        while (this.activePlayers.length > 1) {
+            const totalCards = this.getCardCount()
             if (totalCards !== 52) {
                 throw new Error('Something went wrong, the total cards in play is not 52')
             }
 
-            this.rounds.push(round);
-            this.players = this.players.filter(player => player.activeCards.length > 0 || player.standbyCards.length > 0);
+            const round = new Round(this, this.activePlayers);
+            round.start();
+
+            this.activePlayers = this.activePlayers.filter(player => player.cardCount() > 0);
+        }
+
+        return {
+            winnerName: this.activePlayers[0].name,
+            roundCount: this.roundCount,
+            warCount: this.warCount,
+            estimatedPlayTime: this.estimatePlayTime(),
         }
     }
 
     public dealCards() {
         while (this.deck.cards.length > 0) {
-            this.players.forEach(player => {
+            this.activePlayers.forEach(player => {
                 const card = this.deck.cards.shift();
                 if (card) {
                     player.addCardToActiveCards(card)
                 }
             })
         }
+    }
+
+    public removePlayer(player: Player): void {
+        this.activePlayers = this.activePlayers.filter(p => p !== player);
+    }
+
+    public giveStandbyCardsToPlayer(player: Player) {
+        player.addToGainedCards(this.standByCards);
+        this.standByCards = [];
+    }
+
+    public getCardCount(): number {
+        const playerCardsCount = this.activePlayers.reduce((total, player) => total + player.cardCount(), 0)
+        return playerCardsCount + this.standByCards.length
+    }
+
+    public addRound() {
+        this.roundCount++;
+    }
+
+    public addWar() {
+        this.warCount++;
+    }
+
+    /**
+     * Estimate the play time in minutes
+     */
+    public estimatePlayTime(): number {
+        return Math.ceil((this.roundCount * ESTIMATED_ROUND_TIME + this.warCount * ESTIMATED_WAR_TIME) / 60)
     }
 }

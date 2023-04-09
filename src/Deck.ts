@@ -4,13 +4,13 @@ import Card from "./Card";
 import {shuffleCards} from "./utils/cards";
 
 export default class Deck {
-    public cards: Card[];
+    public cards: Card[] = [];
 
     constructor() {
-        this.cards = [];
         this.addCardsToDeck();
         this.cards = shuffleCards(this.cards)
     }
+
 
     addCardsToDeck() {
         suits.forEach(suit => {

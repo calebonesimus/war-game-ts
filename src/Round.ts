@@ -1,44 +1,90 @@
-import Deck from "./Deck";
 import Player from "./Player";
 import Card from "./Card";
-import {PlayedCard} from "./types";
+import {PlayedCard} from "./utils/types";
 import {Game} from "./Game";
-import {Reset, FgGreen, Underscore, BgBlack, FgWhite, FgCyan} from "./data/consoleColors";
+import {BgBlack, BgRed, FgBlack, FgCyan, FgGreen, Reset, Underscore} from "./data/consoleColors";
+import {LOG_ALL_ROUNDS, WAR_SACRIFICE} from "./data/constants";
 
 export class Round {
     public game: Game;
     public players: Player[];
+    public isWar: boolean;
 
     public winner: Player | undefined;
     public winningCard: Card | undefined;
 
-    constructor(game: Game, players: Player[]) {
+    constructor(game: Game, players: Player[], isWar = false) {
         this.players = players;
         this.game = game;
+        this.isWar = isWar;
     }
 
     public start() {
-        const cardsInPlay = this.getCardFromEachPlayer()
+        let canPlay = true;
 
-        const {player: winner, card} = this.comparePlayedCards(cardsInPlay);
+        if (this.isWar) {
+            const maxSacrifice = this.getMaxSacrifice();
 
-        winner.addToStandbyCards(cardsInPlay.map(card => card.card));
+            const playersToRemove = []
+            this.players.forEach(player => {
+                if (player.cardCount() === 0 || player.cardCount() < maxSacrifice) {
+                    playersToRemove.push(player)
+                    return
+                }
 
-        // if (this.game.standByCards.length > 0) {
-        //     winner.addToStandbyCards(this.game.standByCards);
-        //     this.game.standByCards = [];
-        // }
+                const cards = player.getWarSacrifice(maxSacrifice);
+                this.addCardsToGameStandbyCards(cards);
+            })
 
-        this.winner = winner;
-        this.winningCard = card;
+            this.players = this.players.filter(player => !playersToRemove.includes(player))
+        }
 
-        this.logRound();
+        if (this.players.length === 1) {
+            this.winner = this.players[0]
+            this.winningCard = this.winner.displayNextCard()
+            canPlay = false
+        }
+
+        if (canPlay) {
+            const cardsInPlay = this.getCardFromEachPlayer()
+
+            this.addCardsToGameStandbyCards(cardsInPlay.map(card => card.card));
+
+            try {
+                this.comparePlayedCards(cardsInPlay)
+            } catch (e) {
+                console.log(e)
+            }
+
+            const winningCards = this.comparePlayedCards(cardsInPlay);
+
+            if (winningCards.length > 1) { // start a war
+                const winningPlayers = winningCards.map(card => card.player);
+
+                const round = new Round(this.game, winningPlayers, true);
+                round.start();
+
+                this.winner = round.winner
+                this.winningCard = round.winningCard
+            } else {
+                const {player: winner, card} = winningCards[0];
+
+                this.winner = winner;
+                this.winningCard = card;
+            }
+        }
+
+        if (!this.isWar) {
+            this.game.giveStandbyCardsToPlayer(this.winner);
+        }
+
+        this.isWar ? this.game.addWar() : this.game.addRound();
+        if (LOG_ALL_ROUNDS) this.logRound();
     }
 
     private getCardFromEachPlayer(): PlayedCard[] {
         return this.players.map(player => {
             const card = player.playNextCard();
-            // task: player should be removed if they don't have any cards
             if (card) {
                 return {
                     player,
@@ -48,23 +94,65 @@ export class Round {
         });
     }
 
-    private comparePlayedCards(playedCards: PlayedCard[]): PlayedCard {
-        return playedCards.reduce((previousCard, currentCard) => {
+    private removePlayer(player: Player) {
+        this.players = this.players.filter(p => p.name !== player.name);
+        this.game.removePlayer(player)
+    }
+
+    private comparePlayedCards(playedCards: PlayedCard[]): PlayedCard[] {
+        const cardsWithEqualPower = playedCards.filter((card, index) => {
+            return playedCards.some((otherCard, otherIndex) => {
+                return card.card.power === otherCard.card.power && index !== otherIndex
+            })
+        })
+
+        if (cardsWithEqualPower.length > 1) return cardsWithEqualPower;
+
+        // TODO: WHY IS THIS HAPPENING???
+        if (!playedCards.length) {
+            throw new Error('No cards were played')
+        }
+
+        const winningCard = playedCards.reduce((previousCard, currentCard) => {
             if (currentCard.card.power > previousCard.card.power) {
                 return currentCard
             } else {
                 return previousCard
             }
         })
+
+        return [winningCard];
+    }
+
+    public addCardsToGameStandbyCards(cards: Card[]) {
+        this.game.standByCards.push(...cards);
+    }
+
+    private getMaxSacrifice(): number {
+        return this.players.reduce((max, player) => {
+            const numCards = player.cardCount();
+            if (numCards > max) {
+                return max;
+            } else if (numCards === 1 || numCards === 0) {
+                return 0;
+            } else {
+                return numCards - 1;
+            }
+        }, WAR_SACRIFICE)
     }
 
     public logRound() {
-        console.log(`${Underscore}${BgBlack}${FgCyan} ---- Round ${this.game.rounds.length + 1} ---- ${Reset}\n`)
+        if (this.isWar) {
+            console.log(`${Underscore}${BgRed}${FgBlack} ---- WAR Round ${this.game.roundCount} ---- ${Reset}\n`)
+        } else {
+            console.log(`${Underscore}${BgBlack}${FgCyan} ---- Round ${this.game.roundCount} ---- ${Reset}\n`)
+        }
+
         console.log(`${FgGreen}${this.winner?.name} won with ${this.winningCard.name}\n${Reset}`);
         this.players.forEach(player => {
-            console.log(`${player.name} cards remaining:`)
+            console.log(`${player.name} cards remaining -`)
             console.log(`${player.activeCards.length} active cards`)
-            console.log(`${player.standbyCards.length} standby cards`)
+            console.log(`${player.gainedCards.length} standby cards`)
             console.log('\n')
         })
     }
