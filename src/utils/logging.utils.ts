@@ -1,6 +1,7 @@
 import {GameSetResult} from "../types";
-import {LOG_FAILED_GAMES, NUM_GAMES_TO_PLAY} from "../constants";
 import {Table} from "console-table-printer";
+import {LOG_GAME_SET_FAILED_GAMES} from "../config/logging.config";
+import {NUM_GAMES_TO_PLAY} from "../config/game-set.config";
 
 export function logGameSetStats(results: GameSetResult) {
     const rows = [
@@ -11,7 +12,7 @@ export function logGameSetStats(results: GameSetResult) {
         {Stat: 'Shortest game duration', Value: `${results.shortestGameDuration} minutes`},
     ]
 
-    if (LOG_FAILED_GAMES) {
+    if (LOG_GAME_SET_FAILED_GAMES) {
         const failedGamesPercentage = (results.failedGames / results.numGamesPlayed * 100).toFixed(2)
         rows.push({Stat: 'Failed games', Value: `${results.failedGames}/${NUM_GAMES_TO_PLAY} (${failedGamesPercentage}%)`})
     }

@@ -1,7 +1,7 @@
-import {NUM_GAMES_TO_PLAY} from "../constants";
 import {Game} from "../Game";
 import {GameSetResult} from "../types";
 import {average, max, median, min, mode} from "./math.utils";
+import {NUM_GAMES_TO_PLAY} from "../config/game-set.config";
 
 export function runGames(players: string[], gamesToPlay: number = NUM_GAMES_TO_PLAY): GameSetResult {
     let gameDurations = []

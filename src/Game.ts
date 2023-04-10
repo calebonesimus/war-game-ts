@@ -3,7 +3,7 @@ import {Round} from "./Round";
 import Deck from "./Deck";
 import Card from "./Card";
 import {GameResult} from "./types";
-import {ESTIMATED_ROUND_TIME, ESTIMATED_WAR_TIME} from "./constants";
+import {ESTIMATED_ROUND_TIME, ESTIMATED_WAR_TIME} from "./config/time-estimate.config";
 
 export class Game {
     public initialCards: Card[];

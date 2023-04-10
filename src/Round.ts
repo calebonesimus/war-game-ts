@@ -3,7 +3,8 @@ import Card from "./Card";
 import {PlayedCard} from "./types";
 import {Game} from "./Game";
 import {BgBlack, BgRed, FgBlack, FgCyan, FgGreen, Reset, Underscore} from "./utils/console-colors.utils";
-import {LOG_ALL_ROUNDS, WAR_SACRIFICE} from "./constants";
+import {LOG_ALL_ROUNDS} from "./config/logging.config";
+import {WAR_SACRIFICE} from "./config/game.config";
 
 export class Round {
     public game: Game;

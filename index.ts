@@ -1,7 +1,8 @@
 import {exportPlayTimeFrequency} from "./src/utils/exports.utils";
 import {logGameSetStats} from "./src/utils/logging.utils";
 import {runGames} from "./src/utils/game-runner.utils";
-import {EXPORT_GAME_SET_RESULTS, LOG_GAME_SET_STATS} from "./src/constants";
+import {EXPORT_GAME_DURATION_FREQUENCY} from "./src/config/exporting.config";
+import {LOG_GAME_SET_STATS} from "./src/config/logging.config";
 
 const players = [
     'Caleb',
@@ -12,5 +13,5 @@ const players = [
 const gameSetResults = runGames(players)
 
 LOG_GAME_SET_STATS && logGameSetStats(gameSetResults)
-EXPORT_GAME_SET_RESULTS && exportPlayTimeFrequency(gameSetResults)
+EXPORT_GAME_DURATION_FREQUENCY && exportPlayTimeFrequency(gameSetResults)
 

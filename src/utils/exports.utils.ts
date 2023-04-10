@@ -1,7 +1,7 @@
 import fs from "fs";
-import {NUM_GAMES_TO_PLAY} from "../constants";
 import {GameSetResult} from "../types";
 import {FgGreen, Reset} from "./console-colors.utils";
+import {NUM_GAMES_TO_PLAY} from "../config/game-set.config";
 
 function createExportFileName() {
     return `${__dirname}/../../exports/${NUM_GAMES_TO_PLAY}-rounds-${Date.now()}.csv`
