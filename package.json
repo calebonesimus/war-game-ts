@@ -6,6 +6,7 @@
     "start": "npx ts-node index.ts"
   },
   "dependencies": {
+    "console-table-printer": "^2.11.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
   }

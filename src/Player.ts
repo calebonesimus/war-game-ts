@@ -1,5 +1,5 @@
 import Card from "./Card";
-import {shuffleCards} from "./utils/cards";
+import {shuffleCards} from "./utils/cards.utils";
 
 export default class Player {
     public name: string;

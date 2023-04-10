@@ -1,4 +1,6 @@
 import Card from "../Card";
+import suits from "../data/suits.json";
+import cardTypes from "../data/cardTypes.json";
 
 export function shuffleCards(cards: Card[]) {
     const cardsCopy = [...cards]
@@ -12,4 +14,20 @@ export function shuffleCards(cards: Card[]) {
     }
 
     return cardsCopy;
+}
+
+export function createShuffledDeck() {
+    return shuffleCards(createCards())
+}
+
+function createCards() {
+    const cards = []
+
+    suits.forEach(suit => {
+        cardTypes.forEach(cardType => {
+            cards.push(new Card(suit, cardType.face, cardType.power));
+        });
+    });
+
+    return cards;
 }

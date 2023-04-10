@@ -2,8 +2,8 @@ import Player from "./Player";
 import {Round} from "./Round";
 import Deck from "./Deck";
 import Card from "./Card";
-import {GameResult} from "./utils/types";
-import {ESTIMATED_ROUND_TIME, ESTIMATED_WAR_TIME} from "./data/constants";
+import {GameResult} from "./types";
+import {ESTIMATED_ROUND_TIME, ESTIMATED_WAR_TIME} from "./constants";
 
 export class Game {
     public initialCards: Card[];

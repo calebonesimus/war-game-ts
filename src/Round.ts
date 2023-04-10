@@ -1,9 +1,9 @@
 import Player from "./Player";
 import Card from "./Card";
-import {PlayedCard} from "./utils/types";
+import {PlayedCard} from "./types";
 import {Game} from "./Game";
-import {BgBlack, BgRed, FgBlack, FgCyan, FgGreen, Reset, Underscore} from "./data/consoleColors";
-import {LOG_ALL_ROUNDS, WAR_SACRIFICE} from "./data/constants";
+import {BgBlack, BgRed, FgBlack, FgCyan, FgGreen, Reset, Underscore} from "./utils/console-colors.utils";
+import {LOG_ALL_ROUNDS, WAR_SACRIFICE} from "./constants";
 
 export class Round {
     public game: Game;
@@ -50,11 +50,7 @@ export class Round {
 
             this.addCardsToGameStandbyCards(cardsInPlay.map(card => card.card));
 
-            try {
-                this.comparePlayedCards(cardsInPlay)
-            } catch (e) {
-                console.log(e)
-            }
+            this.comparePlayedCards(cardsInPlay)
 
             const winningCards = this.comparePlayedCards(cardsInPlay);
 
@@ -92,11 +88,6 @@ export class Round {
                 }
             }
         });
-    }
-
-    private removePlayer(player: Player) {
-        this.players = this.players.filter(p => p.name !== player.name);
-        this.game.removePlayer(player)
     }
 
     private comparePlayedCards(playedCards: PlayedCard[]): PlayedCard[] {

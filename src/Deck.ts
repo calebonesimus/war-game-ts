@@ -1,23 +1,10 @@
-import suits from './data/suits.json'
-import cardTypes from './data/cardTypes.json'
 import Card from "./Card";
-import {shuffleCards} from "./utils/cards";
+import {createShuffledDeck} from "./utils/cards.utils";
 
 export default class Deck {
-    public cards: Card[] = [];
+    public cards: Card[];
 
     constructor() {
-        this.addCardsToDeck();
-        this.cards = shuffleCards(this.cards)
+        this.cards = createShuffledDeck()
     }
-
-
-    addCardsToDeck() {
-        suits.forEach(suit => {
-            cardTypes.forEach(cardType => {
-                this.cards.push(new Card(suit, cardType.face, cardType.power));
-            });
-        });
-    }
-
 }

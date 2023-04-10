@@ -10,5 +10,4 @@ export default class Card {
         this.suit = suit;
         this.name = `${face} of ${suit}`;
     }
-
 }
